@@ -6,7 +6,7 @@ library(dplyr)
 library(reshape2)
 library(googleVis)
 library(gtools)
-
+k=625
     url <- "https://villageinfo.in/andhra-pradesh/east-godavari.html"
     tryCatch(html <- paste(readLines(url), collapse="\n"))
     matched1 <- as.data.frame(str_match_all(html, "<a href=\"(.*?)\""))
@@ -17,7 +17,7 @@ library(gtools)
     colnames(matched1) = "X2"
     matched1$X2 = as.character(matched1$X2)
     rownames(matched1) <- 1:nrow(matched1)
-    for(i in 1:nrow(matched1)){
+    for(i in 39:nrow(matched1)){
       tryCatch(html <- paste(readLines(matched1[i,]), collapse="\n"))
       matched2 <- as.data.frame(str_match_all(html, "<a href=\"(.*?)\""))
       matched2$X1 = NULL
@@ -35,17 +35,23 @@ library(gtools)
       rownames(matched2) <- 1:nrow(matched2)
       for(j in 1:nrow(matched2))
       {
-        tryCatch(webpage <- read_html(matched2[j,]))
-        tryCatch(data <- webpage %>%
-                   html_nodes("table") %>%
-                   .[[1]] %>%
-                   html_table())
         
+        tryCatch(webpage <- read_html(matched2[j,]))
+        if((i!=5 && j!=3)&&(i!=19 && j!=1)&&(i!=31 && j!=33)&&(i!=37 && j!=14)&&(i!=39 && j!=40))
+        {
+        
+          tryCatch(
+            {data <- webpage %>%
+                     html_nodes("table") %>%
+                     .[[1]] %>%
+                     html_table()
+            })  
+        }
         n <- data$X1
         t1 <- as.data.frame(t(data[,-1]))
         colnames(t1) <- n
         colnames(t1)[1]<-"Gram Panchayat"
-        if(i<6 && j<6)
+        if(k==1)
         {
           value = t1
         }
@@ -53,6 +59,7 @@ library(gtools)
         {
           value = smartbind(value, t1)
         }
+        k=k+1
         rownames(value) <- 1:nrow(value)
         
       }
